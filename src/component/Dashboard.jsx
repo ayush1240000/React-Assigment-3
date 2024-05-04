@@ -11,7 +11,8 @@ export default function Dashboard() {
   const [tempRecord, setTempRecord] = useState({ title: '', body: '' });
   const [editingIndex, setEditingIndex] = useState(null);
   const [isLoggedout ,setisLoggedOut] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);   const [postsPerPage] = useState(5); 
+  const [currentPage, setCurrentPage] = useState(1); 
+ const [postsPerPage] = useState(5); 
   useEffect(() => {
     axios.get('https://jsonplaceholder.typicode.com/posts').then((res) => setRecords(res.data));
   }, []);
@@ -64,12 +65,10 @@ export default function Dashboard() {
   };
 
   const handleLogout = () =>{
-    setisLoggedOut(true);
+    localStorage.removeItem("isAuthenticated");
     navigator("/Login");
-    // alert ('logout succesfully');
   }
 
-  // Pagination logic
   const indexOfLastPost = currentPage * postsPerPage;  
   const indexOfFirstPost = indexOfLastPost - postsPerPage; 
   const currentPosts = records.slice(indexOfFirstPost, indexOfLastPost);

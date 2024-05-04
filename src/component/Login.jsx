@@ -3,18 +3,17 @@ import Form from 'react-bootstrap/Form';
 import React from 'react';
 import { useState,useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Dashboard from './Dashboard';
 
-const data = { email: "user1@example.com", password: "admin@123" };
+const data = { email: "ayush@gmail.com", password: "ayush@123" };
 
 const Login = () => {
   const navigator = useNavigate();
-  const [authData, setAuthData] = useState({ email: "", password: "" });
-  const [isChanged, setIsChanged] = useState(false);
+  const [userData, setUserData] = useState({ email: "", password: "" });
+  const [isLogIn, setIsLogIn] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setAuthData((prevAuthData) => ({
+    setUserData((prevAuthData) => ({
       ...prevAuthData,
       [name]: value,
     }));
@@ -27,11 +26,12 @@ const Login = () => {
     const storedEmail = data.email;
     const storedPassword = data.password;
     if (
-      storedEmail === authData.email &&
-      storedPassword === authData.password
+      storedEmail === userData.email &&
+      storedPassword === userData.password
     ) {
       localStorage.setItem("isAuthenticated", "authenticated");
       navigator("/Dashboard");
+      setIsLogIn(true);
     } else {
       alert("wrong credentials"); 
     }
@@ -51,7 +51,7 @@ const Login = () => {
           type="email"
           placeholder="Enter email"
           name="email"
-          value={authData.email}
+          value={userData.email}
           onChange={(e) => handleInputChange(e)}
         />
         <Form.Text className="text-muted">
@@ -65,7 +65,7 @@ const Login = () => {
           type="password"
           placeholder="Password"
           name="password"
-          value={authData.password}
+          value={userData.password}
           onChange={(e) => handleInputChange(e)}
         />
       </Form.Group>
