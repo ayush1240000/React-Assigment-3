@@ -1,13 +1,17 @@
-  
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table } from 'react-bootstrap';
+import { Button, Table, Pagination } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import Login from './Login';
 
 export default function Dashboard() {
+  
+  const navigator = useNavigate();
   const [records, setRecords] = useState([]);
   const [tempRecord, setTempRecord] = useState({ title: '', body: '' });
   const [editingIndex, setEditingIndex] = useState(null);
-
+  const [isLoggedout ,setisLoggedOut] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);   const [postsPerPage] = useState(5); 
   useEffect(() => {
     axios.get('https://jsonplaceholder.typicode.com/posts').then((res) => setRecords(res.data));
   }, []);
@@ -59,12 +63,25 @@ export default function Dashboard() {
       .catch((error) => console.error('Error deleting record:', error));
   };
 
+  const handleLogout = () =>{
+    setisLoggedOut(true);
+    navigator("/Login");
+    // alert ('logout succesfully');
+  }
+
+  // Pagination logic
+  const indexOfLastPost = currentPage * postsPerPage;  
+  const indexOfFirstPost = indexOfLastPost - postsPerPage; 
+  const currentPosts = records.slice(indexOfFirstPost, indexOfLastPost);
+
+  const paginate = pageNumber => setCurrentPage(pageNumber);
+
   return (
- 
-    <div className="container">
+    <>
+    <div className="container"> 
       <form>
         <div className="form-group">
-          <label htmlFor="title">Title</label>
+          <label htmlFor="title">Title</label> 
           <input
             type="text"
             className="form-control"
@@ -103,29 +120,29 @@ export default function Dashboard() {
           </tr>
         </thead>
         <tbody>
-          {records.map((record, index) => (
+          {currentPosts.map((record, index) => (
             <tr key={record.id}>
-              <td onClick={() => handleEditClick(index, record.id)}>
-                {editingIndex === index ? (
+              <td onClick={() => handleEditClick(indexOfFirstPost + index, record.id)}>
+                {editingIndex === (indexOfFirstPost + index) ? (
                   <input
                     type="text"
                     value={tempRecord.title}
                     name="title"
                     onChange={handleInputChange}
-                    onBlur={() => handleUpdateRecord(index, record.id)}
+                    onBlur={() => handleUpdateRecord(indexOfFirstPost + index, record.id)}
                   />
                 ) : (
                   record.title
                 )}
               </td>
-              <td onClick={() => handleEditClick(index, record.id)}>
-                {editingIndex === index ? (
+              <td onClick={() => handleEditClick(indexOfFirstPost + index, record.id)}>
+                {editingIndex === (indexOfFirstPost + index) ? (
                   <textarea
                     rows="3"
                     value={tempRecord.body}
                     name="body"
                     onChange={handleInputChange}
-                    onBlur={() => handleUpdateRecord(index, record.id)}
+                    onBlur={() => handleUpdateRecord(indexOfFirstPost + index, record.id)}
                   />
                 ) : (
                   record.body
@@ -140,8 +157,19 @@ export default function Dashboard() {
           ))}
         </tbody>
       </Table>
+      <Pagination>
+        <Pagination.Prev onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
+        {[...Array(Math.ceil(records.length / postsPerPage)).keys()].map(number => (
+          <Pagination.Item key={number+1} onClick={() => paginate(number + 1)} active={number + 1 === currentPage}>
+            {number + 1}
+          </Pagination.Item>
+        ))}
+        <Pagination.Next onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(records.length / postsPerPage)} />
+      </Pagination>
+      <Button variant="danger" onClick={() => handleLogout()}>
+                Logout
+      </Button>
     </div>
+    </>
   );
 }
-
-
